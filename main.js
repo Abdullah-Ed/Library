@@ -1,30 +1,58 @@
 let myLibrary = [];
 
-function Book(title, author, pages,read) {
+function Book(title, author, pages,read,data) {
   this.title = title;
   this.author = author;
   this.pages = pages;
   this.read = read;
-};
+  this.data = data;
+}
 
 function addBookToLibrary(newBook) {
   myLibrary.push(newBook);
-};
+}
 
-const tableHeader = document.querySelector('.table-header')
 
-function createTd(title, author, pages, read ){
-  const tr =  document.createElement('tr');
+
+const bookList = document.querySelector('.book-list');
+let dataAttributeNum = 0;
+
+function createTd(title, author, pages, read) {
+  const tr = document.createElement('tr');
+
   const cellData = [title, author, pages, read];
-
   cellData.forEach(data => {
     const td = document.createElement('td');
     td.textContent = data;
     tr.appendChild(td);
-  }); 
+  });
 
-  tableHeader.insertAdjacentElement('afterend', tr);
+  createRemoveBtn(tr);
+
+  bookList.insertAdjacentElement('afterend', tr);
+  dataAttributeNum++;
 }
+
+function createRemoveBtn(parent) {
+  const tdBtn = document.createElement('td');
+  const removeBtn = document.createElement('button');
+  removeBtn.textContent = 'Remove';
+  removeBtn.setAttribute('data-num', dataAttributeNum);
+
+  tdBtn.appendChild(removeBtn);
+  parent.appendChild(tdBtn);
+
+  removeBtn.addEventListener('click', removeCurrentBook);
+
+  function removeCurrentBook() {
+    const dataAttributeNum = Number(removeBtn.dataset.num);
+  
+    myLibrary = myLibrary.filter(book => book.data !== dataAttributeNum);
+    parent.remove();
+  }
+  
+
+  }
 
 
 
@@ -59,12 +87,13 @@ function submitBook(event) {
   let authorV = authorInput.value;
   let pagesV = pagesInput.value;
   let isRead = readInput.checked ? true : false;
+  let dataAttribute = indexOfArray;
 
-  addBookToLibrary(new Book(bookV, authorV, pagesV, isRead));
+  addBookToLibrary(new Book(bookV, authorV, pagesV, isRead, dataAttribute));
 
   currentBook = myLibrary[indexOfArray];
   createTd(currentBook.title, currentBook.author, 
-    currentBook.pages, currentBook.read ? 'READ': 'NOT READ');
+    currentBook.pages, currentBook.read ? 'READ': 'NOT READ',);
 
   ++indexOfArray;
   form.reset()
