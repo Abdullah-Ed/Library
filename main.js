@@ -72,6 +72,14 @@ function showForm() {
   formContainer.style.display = 'block';
 }
 
+const cancelFormBtn = document.querySelector('.cancel-form-btn');
+cancelFormBtn.addEventListener('click', cancelFrom);
+function cancelFrom(){
+  event.preventDefault();
+  formContainer.style.display = 'none';
+  form.reset();
+} 
+
 showFormBtn.addEventListener('click', showForm);
 
 const form = document.querySelector('form');
