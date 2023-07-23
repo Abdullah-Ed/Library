@@ -68,6 +68,7 @@ function createRemoveBtn(parent, dataAttributeNum) {
 
 const showFormBtn = document.querySelector('.show-form-btn');
 const formContainer = document.querySelector('.form-container');
+showFormBtn.addEventListener('click', showForm)
 function showForm() {
   formContainer.style.display = 'block';
 }
