@@ -8,30 +8,44 @@
   <script src="main.js" defer></script>
 </head>
 <body> 
-  <button class="show-form-btn">NEW BOOK</button>
+  
+
+
   <div class="form-container">
     <form>
       <input type="text" name="book" placeholder="Book" id="book-input" required>
       <input type="text" name="author" placeholder="Author" id="author-input" required>
       <input type="number" name="pages" placeholder="Pages" id="pages-input" min="1" required >
-      <label for="read-status">did you read it?</label>
-      <input type="checkbox" name="read" id="read-status" >
+      <div class="checkbox-container">
+        <label for="read-status">did you read it?</label>
+        <input type="checkbox" name="read" id="read-status" >
+      </div>
       <button class="add-book-btn">Submit</button>
       <button class="cancel-form-btn">Cancel</button>
     </form>
   </div> 
-  <table>
-    <thead>
-      <tr class="table-header">
-        <th>Title</th>
-        <th>Author</th>
-        <th>Pages</th>
-        <th>Read</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody class="book-list">
-    </tbody>
-  </table>
+
+  <div class="grid">
+    <div class="header">
+      <div>
+        <img src="library-outline.svg" alt="Library icon">
+        <h1>Library</h1>
+      </div>
+      <button class="show-form-btn">NEW BOOK</button>
+    </div>
+    <table>
+      <thead>
+        <tr class="table-header">
+          <th>Title</th>
+          <th>Author</th>
+          <th>Pages</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody class="book-list">
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
