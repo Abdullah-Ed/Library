@@ -1,115 +1,140 @@
-let myLibrary = [];
-
-function Book(title, author, pages, read, data) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
-  this.data = data;
-}
-
-function addBookToLibrary(newBook) {
-  myLibrary.push(newBook);
-}
-
-const bookList = document.querySelector('.book-list');
-
-function createTd(book) {
-  const tr = document.createElement('tr');
-
-  const cellData = [book.title, book.author, book.pages];
-  cellData.forEach(data => {
-    const td = document.createElement('td');
-    td.textContent = data;
-    tr.appendChild(td);
-  });
-
-  const readBtn = document.createElement('button');
-  readBtn.textContent = book.read ? 'READ' : 'NOT READ';
-  const readTd = document.createElement('td');
-  readTd.appendChild(readBtn);
-  tr.appendChild(readTd);
-  readBtn.addEventListener('click', () => changeReadStatus(readBtn));
-  readBtn.setAttribute('data-num', book.data);
-
-  createRemoveBtn(tr, book.data);
-
-  bookList.appendChild(tr);
-}
-
-function changeReadStatus(readBtn) {
-  const dataAttributeNum = Number(readBtn.getAttribute('data-num'));
-  const bookToUpdate = myLibrary.find(book => book.data === dataAttributeNum);
-
-  if (bookToUpdate) {
-    bookToUpdate.read = !bookToUpdate.read;
-    readBtn.textContent = bookToUpdate.read ? 'READ' : 'NOT READ';
+class Book {
+  constructor(title, author, pages, read) {
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.read = read;
   }
 }
 
-function createRemoveBtn(parent, dataAttributeNum) {
-  const tdBtn = document.createElement('td');
-  const removeBtn = document.createElement('button');
-  removeBtn.textContent = 'Remove';
-  removeBtn.setAttribute('data-num', dataAttributeNum);
+class Library {
+  constructor() {
+    this.myLibrary = [];
+    this.bookList = document.querySelector('.book-list');
+    this.showFormBtn = document.querySelector('.show-form-btn');
+    this.formContainer = document.querySelector('.form-container');
+    this.cancelFormBtn = document.querySelector('.cancel-form-btn');
+    this.form = document.querySelector('form');
+    this.bookInput = document.querySelector('#book-input');
+    this.authorInput = document.querySelector('#author-input');
+    this.pagesInput = document.querySelector('#pages-input');
+    this.readInput = document.querySelector('#read-status');
+    this.addBookBtn = document.querySelector('.add-book-btn');
 
-  tdBtn.appendChild(removeBtn);
-  parent.appendChild(tdBtn);
+    this.showFormBtn.addEventListener('click', this.showForm.bind(this));
+    this.cancelFormBtn.addEventListener('click', this.cancelForm.bind(this));
+    this.addBookBtn.addEventListener('click', this.submitBook.bind(this));
+    this.bookList.addEventListener('click', this.handleBookActions.bind(this));
+  }
 
-  removeBtn.addEventListener('click', removeCurrentBook);
+  showForm() {
+    this.formContainer.style.transform = 'scale(1.3)';
+    this.formContainer.style.transition = 'transform .3s';
+  }
 
-  function removeCurrentBook() {
-    const dataAttributeNum = Number(removeBtn.dataset.num);
+  cancelForm(event) {
+    event.preventDefault();
+    this.formContainer.style.transform = 'scale(0)';
+    this.form.reset();
+  }
 
-    myLibrary = myLibrary.filter(book => book.data !== dataAttributeNum);
-    parent.remove();
+  addBookToLibrary(newBook) {
+    this.myLibrary.push(newBook);
+  }
+
+  createTd(book) {
+    const tr = document.createElement('tr');
+
+    const cellData = [book.title, book.author, book.pages];
+    cellData.forEach(data => {
+      const td = document.createElement('td');
+      td.textContent = data;
+      tr.appendChild(td);
+    });
+
+    const readBtn = document.createElement('button');
+    readBtn.textContent = book.read ? 'READ' : 'NOT READ';
+    readBtn.style.backgroundColor = book.read ? 'green' : 'red';
+    const readTd = document.createElement('td');
+    readTd.appendChild(readBtn);
+    tr.appendChild(readTd);
+
+    this.createRemoveBtn(tr);
+
+    this.bookList.appendChild(tr);
+  }
+
+  changeReadStatus(readBtn) {
+    const tr = readBtn.parentElement.parentElement;
+    const bookIndex = Array.from(this.bookList.children).indexOf(tr);
+
+    if (bookIndex >= 0) {
+      this.myLibrary[bookIndex].read = !this.myLibrary[bookIndex].read;
+      readBtn.textContent = this.myLibrary[bookIndex].read ? 'READ' : 'NOT READ';
+      readBtn.style.backgroundColor = this.myLibrary[bookIndex].read ? 'green' : 'red';
+    }
+  }
+
+  createRemoveBtn(parent) {
+    const tdBtn = document.createElement('td');
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+
+    tdBtn.appendChild(removeBtn);
+    parent.appendChild(tdBtn);
+  }
+
+  removeCurrentBook(bookIndex) {
+    if (bookIndex >= 0 && bookIndex < this.myLibrary.length) {
+      this.myLibrary.splice(bookIndex, 1);
+      this.updateBookList();
+    }
+  }
+
+  updateBookList() {
+    this.bookList.innerHTML = '';
+    this.myLibrary.forEach(book => {
+      this.createTd(book);
+    });
+  }
+
+  submitBook(event) {
+    event.preventDefault();
+
+    if (!this.form.checkValidity()) {
+      this.form.reportValidity();
+      return;
+    }
+
+    let bookV = this.bookInput.value;
+    let authorV = this.authorInput.value;
+    let pagesV = this.pagesInput.value;
+    let isRead = this.readInput.checked;
+
+    this.addBookToLibrary(new Book(bookV, authorV, pagesV, isRead));
+    this.updateBookList();
+
+    this.form.reset();
+    this.cancelForm(event);
+  }
+
+  handleBookActions(event) {
+    const target = event.target;
+    if (target.tagName === 'BUTTON') {
+      const isReadBtn = target.textContent === 'READ' || target.textContent === 'NOT READ';
+      if (isReadBtn) {
+        this.changeReadStatus(target);
+      } else if (target.textContent === 'Remove') {
+        const tr = target.parentElement.parentElement;
+        const bookIndex = Array.from(this.bookList.children).indexOf(tr);
+        this.removeCurrentBook(bookIndex);
+      }
+    }
   }
 }
 
-const showFormBtn = document.querySelector('.show-form-btn');
-const formContainer = document.querySelector('.form-container');
-showFormBtn.addEventListener('click', showForm)
-function showForm() {
-  formContainer.style.display = 'block';
-}
+const myLibraryApp = new Library();
 
-const cancelFormBtn = document.querySelector('.cancel-form-btn');
-cancelFormBtn.addEventListener('click', cancelFrom);
-function cancelFrom(){
-  event.preventDefault();
-  formContainer.style.display = 'none';
-  form.reset();
-} 
-
-showFormBtn.addEventListener('click', showForm);
-
-const form = document.querySelector('form');
-const bookInput = document.querySelector('#book-input');
-const authorInput = document.querySelector('#author-input');
-const pagesInput = document.querySelector('#pages-input');
-const readInput = document.querySelector('#read-status');
-
-const addBookBtn = document.querySelector('.add-book-btn');
-
-function submitBook(event) {
-  event.preventDefault();
-
-  if (!form.checkValidity()) {
-    form.reportValidity();
-    return;
-  }
-
-  let bookV = bookInput.value;
-  let authorV = authorInput.value;
-  let pagesV = pagesInput.value;
-  let isRead = readInput.checked;
-  let dataAttribute = myLibrary.length;
-
-  addBookToLibrary(new Book(bookV, authorV, pagesV, isRead, dataAttribute));
-
-  createTd(myLibrary[myLibrary.length - 1]);
-
-  form.reset();
-}
-
-addBookBtn.addEventListener('click', submitBook);
+const defaultBook = new Book('Re:Zero', 'Tappei Nagatsuki', 240, true);
+myLibraryApp.addBookToLibrary(defaultBook);
+myLibraryApp.updateBookList();
